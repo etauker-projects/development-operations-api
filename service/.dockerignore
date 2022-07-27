@@ -1,0 +1,7 @@
+README.md
+wallaby.js
+
+.env*
+docker-compose.yml
+*.dockerfile
+node_modules

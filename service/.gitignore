@@ -1,0 +1,7 @@
+# Generated files
+dist
+node_modules
+cache
+
+# Computer specific files
+.env
