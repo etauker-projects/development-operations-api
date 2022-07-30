@@ -24,25 +24,9 @@ export class DatabaseService {
 
         const connectionPool = new PoolFactory().makePool(config);
         const connector = new PersistenceConnector(connectionPool);
-        const repository = new DatabaseRepository(connector);
+        const repository = new DatabaseRepository(connector, adminCredentials.getUsername());
         return repository.insert(database);
     }
-
-    createSchema(nodeName: string, databaseName: string, adminCredentials: Credentials, schema: Schema): Promise<Schema> {
-
-        const config: IPersistenceConfig = {
-            database: databaseName,
-            user: adminCredentials.getUsername(),
-            password: adminCredentials.getPassword(),
-            ...this.getRemainingConnection(nodeName),
-        };
-
-        const connectionPool = new PoolFactory().makePool(config);
-        const connector = new PersistenceConnector(connectionPool);
-        const repository = new DatabaseRepository(connector);
-        return repository.insertSchema(schema);
-    }
-
 
     // TODO: get configuration from factory or somewhere else
     private getRemainingConnection(nodeName: string): Omit<IPersistenceConfig, 'database' | 'user' | 'password'> {
