@@ -1,8 +1,9 @@
 /* eslint-disable require-await */
 import * as bodyParser from 'body-parser';
-import * as express from 'express';
-import { ApiController, IResponse } from '../api/api.module';
-import { Schema, SchemaDto, SchemaWithCredentialsDto, SchemaService } from '../schemas/schema.module';
+import express, { Request, Response } from 'express';
+import { z } from 'zod';
+import { ApiController, HttpError, IResponse } from '../api/api.module';
+import { Schema, SchemaDto, SchemaService } from '../schemas/schema.module';
 import { Credentials, CredentialsService } from '../credentials/credentials.module';
 
 
@@ -60,31 +61,26 @@ export class NodeController extends ApiController {
         return this.router;
     }
 
-    public async postSchema(
-        endpoint: string,
-        req: express.Request,
-        res: express.Response,
-    ): Promise<IResponse<SchemaDto>> {
 
-        // TODO: extract requestDto
-        const nodeName = 'node-name';
-        const databaseName = 'database-name';
-        const schemaName = 'schema-name';
-        const adminCredentials = new Credentials('db_admin', 'db_admin_password'); // from header
+    public async postSchema(endpoint: string, req: Request, res: Response): Promise<IResponse<SchemaDto>> {
+        const dtoSchema = z.object({
+            name: z.string().min(5),
+            admin: z.string().min(5),
+            user: z.string().min(5),
+            adminPassword: z.string().min(5),
+            userPassword: z.string().min(5),
+        }).strict();
 
-        const request: SchemaWithCredentialsDto = {
-            name: schemaName,
-            admin: `${schemaName}_admin_username`,
-            user: `${schemaName}_user_username`,
-            adminPassword: `${schemaName}_admin_password`,
-            userPassword: `${schemaName}_user_password`,
-        }
+        const request = dtoSchema.parse(req.body);
+        const nodeName = req.params.nodeId;
+        const databaseName = req.params.databaseId;
+        const adminCredentials = this.parseCredentials(req.header('authorization'));
 
         // convert request to an entity
         const schema = new Schema(
             request.name,
-            this.credentialsService.decryptCredentials(request.admin, request.adminPassword),
-            this.credentialsService.decryptCredentials(request.user, request.userPassword),
+            this.credentialsService.decodeCredentials(request.admin, request.adminPassword),
+            this.credentialsService.decodeCredentials(request.user, request.userPassword),
         );
 
         // call the service and return result
@@ -97,36 +93,40 @@ export class NodeController extends ApiController {
         return { status: 200, body: dto };
     }
 
-    public async deleteSchema(
-        endpoint: string,
-        req: express.Request,
-        res: express.Response,
-    ): Promise<IResponse<void>> {
 
-        // TODO: accept a request body and extract requestDto
-        const nodeName = 'node-name';
-        const databaseName = 'database-name';
-        const schemaName = 'schema-name';
-        const adminCredentials = new Credentials('db_admin', 'db_admin_password'); // from header
+    public async deleteSchema(endpoint: string, req: Request, res: Response): Promise<IResponse<void>> {
+        const dtoSchema = z.object({
+            name: z.string().min(5),
+            admin: z.string().min(5),
+            user: z.string().min(5),
+        }).strict();
 
-        const request: SchemaWithCredentialsDto = {
-            name: schemaName,
-            admin: `${schemaName}_admin_username`,
-            user: `${schemaName}_user_username`,
-            adminPassword: `${schemaName}_admin_password`,
-            userPassword: `${schemaName}_user_password`,
-        }
+        const request = dtoSchema.parse(req.body);
+        const nodeName = req.params.nodeId;
+        const databaseName = req.params.databaseId;
+        const adminCredentials = this.parseCredentials(req.header('authorization'));
 
         // convert request to an entity
         const schema = new Schema(
             request.name,
-            this.credentialsService.decryptCredentials(request.admin, request.adminPassword),
-            this.credentialsService.decryptCredentials(request.user, request.userPassword),
+            this.credentialsService.decodeCredentials(request.admin, ''),
+            this.credentialsService.decodeCredentials(request.user, ''),
         );
 
         // call the service and return result
         await this.schemaService.removeSchema(nodeName, databaseName, adminCredentials, schema);
         return { status: 204, body: undefined };
+    }
+
+
+    private parseCredentials(authorization?: string): Credentials {
+        if (!authorization) {
+            throw new HttpError(401, 'Missing authorization');
+        }
+
+        const decoded = this.credentialsService.decode(authorization.replace('Basic ', ''));
+        const parts = decoded.split(':');
+        return new Credentials(parts[0], parts[1]);
     }
 
 }
