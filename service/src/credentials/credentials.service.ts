@@ -2,13 +2,11 @@ import { Credentials } from './credentials';
 
 export class CredentialsService {
 
-    public decryptCredentials(credentials: string): Credentials {
+    public decryptCredentials(username: string, encryptedPassword: string): Credentials {
 
         // TODO: decrypt the string using private key
-        const decrypted = credentials;
-
-        const parts = decrypted.split(':');
-        return new Credentials(parts[0], parts[1]);
+        const decryptedPassword = encryptedPassword;
+        return new Credentials(username, decryptedPassword);
     }
 
     constructor() {

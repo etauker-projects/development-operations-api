@@ -74,20 +74,26 @@ export class NodeController extends ApiController {
 
         const request: SchemaWithCredentialsDto = {
             name: schemaName,
-            adminCredentials: `${schemaName}_admin_username:${schemaName}_admin_password)`,
-            userCredentials: `${schemaName}_user_username:${schemaName}_user_password)`,
+            admin: `${schemaName}_admin_username`,
+            user: `${schemaName}_user_username`,
+            adminPassword: `${schemaName}_admin_password`,
+            userPassword: `${schemaName}_user_password`,
         }
 
         // convert request to an entity
         const schema = new Schema(
             request.name,
-            this.credentialsService.decryptCredentials(request.adminCredentials),
-            this.credentialsService.decryptCredentials(request.userCredentials),
+            this.credentialsService.decryptCredentials(request.admin, request.adminPassword),
+            this.credentialsService.decryptCredentials(request.user, request.userPassword),
         );
 
         // call the service and return result
         const created = await this.schemaService.initialiseSchema(nodeName, databaseName, adminCredentials, schema);
-        const dto: SchemaDto = { name: created.getName() }
+        const dto: SchemaDto = {
+            name: created.getName(),
+            admin: created.getAdmin().getUsername(),
+            user: created.getUser().getUsername(),
+        }
         return { status: 200, body: dto };
     }
 
@@ -105,15 +111,17 @@ export class NodeController extends ApiController {
 
         const request: SchemaWithCredentialsDto = {
             name: schemaName,
-            adminCredentials: `${schemaName}_admin_username:${schemaName}_admin_password)`,
-            userCredentials: `${schemaName}_user_username:${schemaName}_user_password)`,
+            admin: `${schemaName}_admin_username`,
+            user: `${schemaName}_user_username`,
+            adminPassword: `${schemaName}_admin_password`,
+            userPassword: `${schemaName}_user_password`,
         }
 
         // convert request to an entity
         const schema = new Schema(
             request.name,
-            this.credentialsService.decryptCredentials(request.adminCredentials),
-            this.credentialsService.decryptCredentials(request.userCredentials),
+            this.credentialsService.decryptCredentials(request.admin, request.adminPassword),
+            this.credentialsService.decryptCredentials(request.user, request.userPassword),
         );
 
         // call the service and return result
