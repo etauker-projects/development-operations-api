@@ -19,9 +19,8 @@ export class ApiController {
             const endpoint = registration.endpoint;
             const handler = async (req: express.Request, res: express.Response) => {
                 try {
-                    const { status, body } = await registration.handler.bind(
-                        this, endpoint,
-                    )(req, res);
+                    const handler = registration.handler.bind(this, endpoint);
+                    const { status, body } = await handler(req, res);
                     res.status(status).json(body);
                 } catch (error) {
                     const { status, body } = this.parseError(error);

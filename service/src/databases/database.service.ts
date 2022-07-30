@@ -49,7 +49,7 @@ export class DatabaseService {
         return {
             host: process.env.DATABASE_HOST, // TODO: use node name to determine the url
             port: parseInt(process.env?.DATABASE_PORT || '5432'),
-            ssl: true,
+            ssl: false,
             max: 1,                         // new pool used for each request (should change to not use pools here)
             idleTimeoutMillis: 1000,        // close idle clients after 1 second
             connectionTimeoutMillis: 1000,  // return an error after 1 second if connection could not be established
