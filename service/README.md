@@ -22,7 +22,7 @@ status | method | endpoint | description
 - [ ] configure github action to build docker image
 - [ ] prepare kubernetes files (deployment, service, etc.)
 - [ ] decide how to run the deployments to the cluster
-- [ ] find how to authenticate to github docker registry during deployments
+- [ ] find how to authenticate to github docker registry during deployments ([link](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/))
 - [ ] update code to call the correct host for the provided node
 
 ### Medium Term
