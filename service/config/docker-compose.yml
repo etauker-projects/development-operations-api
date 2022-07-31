@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+
+  api:
+    build:
+      context: ..
+      dockerfile: ./config/main.dockerfile
+      labels: 
+      - app=development-operations-api
+      args:
+        NPM_TOKEN: ${NPM_TOKEN}
+    container_name: development-operations-api
+    env_file:
+      - .env
+    ports:
+      - 2001:9999
+

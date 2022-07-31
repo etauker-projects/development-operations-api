@@ -14,7 +14,6 @@
         "start": "cross-env TS_NODE_PROJECT='./config/tsconfig.json' node --inspect=7000 --loader ts-node/esm --es-module-specifier-resolution=node ./src/serve.ts",
         "push": "npm install && npm run lint && cross-env MODE=production npm run build && npm run test && git push --follow-tags",
         "start:prod": "node --es-module-specifier-resolution=node ./dist/serve.js",
-        "migrations:prod": "node --es-module-specifier-resolution=node ./dist/migrations.js",
         "build:image": "docker compose -f ./config/docker-compose.yml -p development-operations-api build",
         "start:image": "docker compose -f ./config/docker-compose.yml -p development-operations-api up"
     },
