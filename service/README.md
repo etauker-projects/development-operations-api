@@ -9,10 +9,10 @@ Prefix: `/development/operations/api/v1`
 
 status | method | endpoint | description
 -------|-------|----------|-------------
-[ ]  | **POST**   | `/nodes/:nodeName/databases` | Create a new database.
-[ ]  | **DELETE** | `/nodes/:nodeName/databases` | Delete a database.
-[x]  | **POST**   | `/nodes/:nodeName/databases/:databaseName/schemas` | Initialise a new schema in the selected database with two users: an admin and a regular user.
-[x]  | **DELETE** | `/nodes/:nodeName/databases/:databaseName/schemas/:schemaName` | Remove the schema and the two related users.
+[ ]  | **POST**   | `/nodes/{nodeName}/databases` | Create a new database.
+[ ]  | **DELETE** | `/nodes/{nodeName}/databases/{databaseName}` | Delete a database.
+[x]  | **POST**   | `/nodes/{nodeName}/databases/{databaseName}/schemas` | Initialise a new schema in the selected database with two users: an admin and a regular user.
+[x]  | **DELETE** | `/nodes/{nodeName}/databases/{databaseName}/schemas/{schemaName}` | Remove the schema and the two related users.
 
 ## Work / Next Steps
 
