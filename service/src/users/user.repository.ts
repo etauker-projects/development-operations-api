@@ -4,11 +4,12 @@ import { SchemaRepository } from '../schemas/schema.module';
 
 export class UserRepository {
 
-    constructor() {
-
-    }
-
-    public async createUser(transaction: PersistenceTransaction, username: string, password: string, strict = true): Promise<void> {
+    public async createUser(
+        transaction: PersistenceTransaction,
+        username: string,
+        password: string,
+        strict = true,
+    ): Promise<void> {
         // TODO: sanitize input
         try {
             await this.ensureUserDoesNotExist(transaction, username);
@@ -22,7 +23,11 @@ export class UserRepository {
         }
     }
 
-    public async dropUser(transaction: PersistenceTransaction, username: string, strict = true): Promise<void> {
+    public async dropUser(
+        transaction: PersistenceTransaction,
+        username: string,
+        strict = true,
+    ): Promise<void> {
         // TODO: sanitize input
         try {
             await this.ensureUserExists(transaction, username);
@@ -33,7 +38,11 @@ export class UserRepository {
         }
     }
 
-    public async updateUserSearchPath(transaction: PersistenceTransaction, schema: string, username: string): Promise<void> {
+    public async updateUserSearchPath(
+        transaction: PersistenceTransaction,
+        schema: string,
+        username: string,
+    ): Promise<void> {
         await this.ensureUserExists(transaction, username);
         await new SchemaRepository().ensureSchemaExists(transaction, schema);
         
@@ -45,20 +54,29 @@ export class UserRepository {
         await transaction.continue(query);
     }
 
-    public async userExists(transaction: PersistenceTransaction, name: string): Promise<boolean> {
+    public async userExists(
+        transaction: PersistenceTransaction,
+        name: string,
+    ): Promise<boolean> {
         const query = 'SELECT FROM pg_catalog.pg_roles WHERE rolname = $1;';
-        const res = await transaction.continue(query, [name]);
+        const res = await transaction.continue(query, [ name ]);
         return res.results.length > 0;
     }
 
-    public async ensureUserExists(transaction: PersistenceTransaction, name: string): Promise<void> {
+    public async ensureUserExists(
+        transaction: PersistenceTransaction,
+        name: string,
+    ): Promise<void> {
         const exists = await this.userExists(transaction, name);
         if (!exists) {
             throw new HttpError(409, `User with name '${ name }' not found`);
         }
     }
 
-    public async ensureUserDoesNotExist(transaction: PersistenceTransaction, name: string): Promise<void> {
+    public async ensureUserDoesNotExist(
+        transaction: PersistenceTransaction,
+        name: string,
+    ): Promise<void> {
         const exists = await this.userExists(transaction, name);
         if (exists) {
             throw new HttpError(409, `User with name '${ name }' already exists`);

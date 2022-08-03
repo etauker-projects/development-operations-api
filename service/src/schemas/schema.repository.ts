@@ -3,11 +3,11 @@ import { HttpError } from '../api/api.module';
 
 export class SchemaRepository {
 
-    constructor() {
-
-    }
-
-    public async createSchema(transaction: PersistenceTransaction, name: string, strict = true): Promise<void> {
+    public async createSchema(
+        transaction: PersistenceTransaction,
+        name: string,
+        strict = true,
+    ): Promise<void> {
         // TODO: sanitize input
         try {
             await this.ensureSchemaDoesNotExist(transaction, name);
@@ -18,7 +18,11 @@ export class SchemaRepository {
         }
     }
 
-    public async dropSchema(transaction: PersistenceTransaction, name: string, strict = true): Promise<void> {
+    public async dropSchema(
+        transaction: PersistenceTransaction,
+        name: string,
+        strict = true,
+    ): Promise<void> {
         // TODO: sanitize input
         try {
             await this.ensureSchemaExists(transaction, name);
@@ -29,20 +33,29 @@ export class SchemaRepository {
         }
     }
 
-    public async schemaExists(transaction: PersistenceTransaction, name: string): Promise<boolean> {
+    public async schemaExists(
+        transaction: PersistenceTransaction,
+        name: string,
+    ): Promise<boolean> {
         const query = 'SELECT FROM pg_namespace WHERE nspname = $1;';
-        const res = await transaction.continue(query, [name]);
+        const res = await transaction.continue(query, [ name ]);
         return res.results.length > 0;
     }
 
-    public async ensureSchemaExists(transaction: PersistenceTransaction, name: string): Promise<void> {
+    public async ensureSchemaExists(
+        transaction: PersistenceTransaction,
+        name: string,
+    ): Promise<void> {
         const exists = await this.schemaExists(transaction, name);
         if (!exists) {
             throw new HttpError(409, `Schema with name '${ name }' not found`);
         }
     }
 
-    public async ensureSchemaDoesNotExist(transaction: PersistenceTransaction, name: string): Promise<void> {
+    public async ensureSchemaDoesNotExist(
+        transaction: PersistenceTransaction,
+        name: string,
+    ): Promise<void> {
         const exists = await this.schemaExists(transaction, name);
         if (exists) {
             throw new HttpError(409, `Schema with name '${ name }' already exists`);

@@ -6,11 +6,12 @@ import { Schema, SchemaRepository } from './schema.module';
 
 export class SchemaService {
 
-    constructor() {
-
-    }
-
-    async initialiseSchema(nodeName: string, databaseName: string, adminCredentials: Credentials, schema: Schema): Promise<Schema> {
+    async initialiseSchema(
+        nodeName: string,
+        databaseName: string,
+        adminCredentials: Credentials,
+        schema: Schema,
+    ): Promise<Schema> {
 
         const config: IPersistenceConfig = {
             database: databaseName,
@@ -28,8 +29,14 @@ export class SchemaService {
         const transaction1 = connector.transact();
         try {
             await schemaRepository.createSchema(transaction1, schema.getName());
-            await userRepository.createUser(transaction1, schema.getAdmin().getUsername(), schema.getAdmin().getPassword());
-            await userRepository.createUser(transaction1, schema.getUser().getUsername(), schema.getUser().getPassword());
+            await userRepository.createUser(transaction1,
+                schema.getAdmin().getUsername(),
+                schema.getAdmin().getPassword()
+            );
+            await userRepository.createUser(transaction1,
+                schema.getUser().getUsername(),
+                schema.getUser().getPassword()
+            );
             await transaction1.commit();
         } catch (error) {
             await this.handleRollback(transaction1);
@@ -41,8 +48,12 @@ export class SchemaService {
         try {
 
             // ADMIN
-            await userRepository.updateUserSearchPath(transaction2, schema.getName(), schema.getAdmin().getUsername());
-            await this.executeUpdate(transaction2, 'GRANT ALL ON ALL TABLES IN SCHEMA $1 TO $2', [ schema.getName(), schema.getAdmin().getUsername() ] );
+            await userRepository.updateUserSearchPath(
+                transaction2,
+                schema.getName(),
+                schema.getAdmin().getUsername()
+            );
+            await this.executeUpdate(transaction2, 'GRANT ALL ON ALL TABLES IN SCHEMA $1 TO $2', [ schema.getName(), schema.getAdmin().getUsername() ]);
             await this.executeUpdate(transaction2, 'GRANT $1 TO $2', [ schema.getAdmin().getUsername(), adminCredentials.getUsername() ]);
             await this.executeUpdate(transaction2, 'ALTER SCHEMA $1 OWNER TO $2', [ schema.getName(), schema.getAdmin().getUsername() ]);
             await this.executeUpdate(transaction2, 'GRANT CREATE, USAGE ON SCHEMA public TO $1', [ schema.getAdmin().getUsername() ]);
@@ -51,7 +62,11 @@ export class SchemaService {
             await this.executeUpdate(transaction2, 'GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO $1', [ schema.getAdmin().getUsername() ]);
 
             // USER
-            await userRepository.updateUserSearchPath(transaction2, schema.getName(), schema.getUser().getUsername());
+            await userRepository.updateUserSearchPath(
+                transaction2,
+                schema.getName(),
+                schema.getUser().getUsername()
+            );
             await this.executeUpdate(transaction2, 'GRANT USAGE ON SCHEMA $1 TO $2', [ schema.getName(), schema.getUser().getUsername() ]);
             await this.executeUpdate(transaction2, 'GRANT INSERT, SELECT, UPDATE, DELETE ON ALL TABLES IN SCHEMA $1 TO $2', [ schema.getName(), schema.getUser().getUsername() ]);
 
@@ -64,7 +79,12 @@ export class SchemaService {
         }
     }
 
-    async removeSchema(nodeName: string, databaseName: string, adminCredentials: Credentials, schema: Schema): Promise<void> {
+    async removeSchema(
+        nodeName: string,
+        databaseName: string,
+        adminCredentials: Credentials,
+        schema: Schema,
+    ): Promise<void> {
 
         const config: IPersistenceConfig = {
             database: databaseName,
@@ -103,10 +123,14 @@ export class SchemaService {
      * Replace placeholders in the query with given params and execute the query.
      * Query placeholders start with $1 to be more consistent with postgres library.
      */
-    private async executeUpdate(transaction: PersistenceTransaction, prepared: string, params: string[]): Promise<void> {
+    private async executeUpdate(
+        transaction: PersistenceTransaction,
+        prepared: string,
+        params: string[],
+    ): Promise<void> {
         const replacer = (query: string, value: string, index: number) => {
             const searchString = `\\$${ index + 1 }`; // \$1, \$2, \$3, etc.
-            return query.replace(new RegExp(searchString, 'g'), value);
+            return query.replace(new RegExp(searchString, 'gu'), value);
         };
         const query = params.reduce(replacer, prepared);
         await transaction.continue(query);
@@ -124,7 +148,9 @@ export class SchemaService {
     // TODO: get configuration from factory or somewhere else
     private getRemainingConnection(nodeName: string): Omit<IPersistenceConfig, 'database' | 'user' | 'password'> {
         return {
+            // eslint-disable-next-line no-process-env
             host: process.env.DATABASE_HOST, // TODO: use node name to determine the url
+            // eslint-disable-next-line no-process-env
             port: parseInt(process.env?.DATABASE_PORT || '5432'),
             ssl: false,
             max: 1,                         // new pool used for each request (should change to not use pools here)

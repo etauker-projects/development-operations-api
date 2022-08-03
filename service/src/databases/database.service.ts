@@ -1,15 +1,10 @@
 import { IPersistenceConfig, PersistenceConnector, PoolFactory } from '@etauker/connector-postgres';
 import { Credentials } from '../credentials/credentials';
-import { Schema } from '../schemas/schema.module';
 import { Database } from './database';
 import { DatabaseRepository } from './database.repository';
 
 // WIP
 export class DatabaseService {
-
-    constructor() {
-
-    }
 
     createDatabase(adminCredentials: Credentials, database: Database): Promise<Database> {
     
@@ -31,7 +26,9 @@ export class DatabaseService {
     // TODO: get configuration from factory or somewhere else
     private getRemainingConnection(nodeName: string): Omit<IPersistenceConfig, 'database' | 'user' | 'password'> {
         return {
+            // eslint-disable-next-line no-process-env
             host: process.env.DATABASE_HOST, // TODO: use node name to determine the url
+            // eslint-disable-next-line no-process-env
             port: parseInt(process.env?.DATABASE_PORT || '5432'),
             ssl: false,
             max: 1,                         // new pool used for each request (should change to not use pools here)

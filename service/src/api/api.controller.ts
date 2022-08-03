@@ -5,10 +5,6 @@ import { IEndpoint, IResponse } from './api.module';
 
 export class ApiController {
 
-    constructor() {
-
-    }
-
     protected registerEndpoints(
         router: express.Router,
         registrations: IEndpoint[]
@@ -20,8 +16,8 @@ export class ApiController {
             const endpoint = registration.endpoint;
             const handler = async (req: express.Request, res: express.Response) => {
                 try {
-                    const handler = registration.handler.bind(this, endpoint);
-                    const { status, body } = await handler(req, res);
+                    const handlerFn = registration.handler.bind(this, endpoint);
+                    const { status, body } = await handlerFn(req, res);
                     res.status(status).json(body);
                 } catch (error) {
                     const { status, body } = this.parseError(error);
@@ -36,7 +32,7 @@ export class ApiController {
 
     protected parseError(error: any): IResponse<{ message: string }> {
         if (error instanceof ZodError) {
-            return { status: 400, body: error }
+            return { status: 400, body: error };
         }
 
         const status = isNaN(parseInt(error?.code)) ? 500 : parseInt(error?.code);

@@ -62,7 +62,12 @@ export class NodeController extends ApiController {
     }
 
 
-    public async postSchema(endpoint: string, req: Request, res: Response): Promise<IResponse<SchemaDto>> {
+    public async postSchema(
+        endpoint: string,
+        req: Request,
+        res: Response
+    ): Promise<IResponse<SchemaDto>> {
+
         const dtoSchema = z.object({
             name: z.string().min(5),
             admin: z.string().min(5),
@@ -84,17 +89,26 @@ export class NodeController extends ApiController {
         );
 
         // call the service and return result
-        const created = await this.schemaService.initialiseSchema(nodeName, databaseName, adminCredentials, schema);
+        const created = await this.schemaService.initialiseSchema(
+            nodeName, databaseName, adminCredentials, schema
+        );
+
         const dto: SchemaDto = {
             name: created.getName(),
             admin: created.getAdmin().getUsername(),
             user: created.getUser().getUsername(),
-        }
+        };
+
         return { status: 200, body: dto };
     }
 
 
-    public async deleteSchema(endpoint: string, req: Request, res: Response): Promise<IResponse<void>> {
+    public async deleteSchema(
+        endpoint: string,
+        req: Request,
+        res: Response
+    ): Promise<IResponse<void>> {
+
         const dtoSchema = z.object({
             name: z.string().min(5),
             admin: z.string().min(5),
