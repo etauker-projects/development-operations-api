@@ -18,4 +18,5 @@ FROM build AS release
 RUN npm ci --omit=dev
 COPY --from=build /workspace/dist ./dist
 USER nobody
-CMD npm run start:prod
+# CMD npm run start:prod
+CMD [ "node", "--es-module-specifier-resolution=node", "./dist/serve.js" ]

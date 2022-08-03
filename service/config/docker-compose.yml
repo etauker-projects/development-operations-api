@@ -15,4 +15,3 @@ services:
       - .env
     ports:
       - 2001:9999
-
