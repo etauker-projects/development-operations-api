@@ -1,0 +1,170 @@
+name: Execute Service Checks
+
+on:
+  pull_request:
+    branches: 
+      - "main"
+    paths: 
+      - "service/**"
+      - ".github/workflows/service-*-workflow.yml"
+
+env:
+  PROJECT_ROOT: ./service
+  DOCKER_REGISTRY: ghcr.io
+  NPM_REGISTRY_URL: https://registry.npmjs.org
+  NVMRC_FILE: ./service/config/.nvmrc
+  IMAGE_NAME: ${{ github.repository }}
+  CONTEXT_KEY: ${{ github.sha }}-service
+
+jobs:
+
+  setup:
+    name: Setup build context
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: ${{ env.NVMRC_FILE }}
+          registry-url: ${{ env.NPM_REGISTRY_URL }}
+
+      - name: Install dependencies
+        run: npm  ci
+        working-directory: ${{ env.PROJECT_ROOT }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Cache context
+        uses: actions/cache@v2
+        id: build-context
+        with:
+          path: ./*
+          key: ${{ env.CONTEXT_KEY }}
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+      - name: Retrieve context
+        uses: actions/cache@v2
+        id: build-context
+        with:
+          path: ./*
+          key: ${{ env.CONTEXT_KEY }}
+
+      - name: Lint code
+        run: npm run lint
+        working-directory: ${{ env.PROJECT_ROOT }}
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+      - name: Retrieve context
+        uses: actions/cache@v2
+        id: build-context
+        with:
+          path: ./*
+          key: ${{ env.CONTEXT_KEY }}
+
+      - name: Test code
+        run: npm run test
+        working-directory: ${{ env.PROJECT_ROOT }}
+
+  audit:
+    name: Audit
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+      - name: Retrieve context
+        uses: actions/cache@v2
+        id: build-context
+        with:
+          path: ./*
+          key: ${{ env.CONTEXT_KEY }}
+
+      - name: Audit dependencies
+        run: npm audit
+        working-directory: ${{ env.PROJECT_ROOT }}
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+      - name: Retrieve context
+        uses: actions/cache@v2
+        id: build-context
+        with:
+          path: ./*
+          key: ${{ env.CONTEXT_KEY }}
+
+      - name: Build code
+        run: npm run build
+        working-directory: ${{ env.PROJECT_ROOT }}
+
+  # package-migrations:
+  #   name: Package migrations
+  #   runs-on: ubuntu-latest
+  #   needs: [ setup, lint, test, audit, build ]
+
+  #   steps:
+  #     - name: Retrieve context
+  #       uses: actions/cache@v2
+  #       id: build-context
+  #       with:
+  #         path: ./*
+  #         key: ${{ env.CONTEXT_KEY }}
+
+  #     - name: Extract metadata
+  #       id: meta
+  #       uses: docker/metadata-action@v4
+  #       with:
+  #         images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}-migrations
+
+  #     - name: Build image
+  #       uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+  #       with:
+  #         context: ${{ env.PROJECT_ROOT }}
+  #         push: false
+  #         tags: ${{ steps.meta.outputs.tags }}
+  #         labels: ${{ steps.meta.outputs.labels }}
+  #         file: ${{ env.PROJECT_ROOT }}/config/migrations.dockerfile
+
+  package-main:
+    name: Package main
+    runs-on: ubuntu-latest
+    needs: [ setup, lint, test, audit, build ]
+
+    steps:
+      - name: Retrieve context
+        uses: actions/cache@v2
+        id: build-context
+        with:
+          path: ./*
+          key: ${{ env.CONTEXT_KEY }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}-main
+
+      - name: Build image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: ${{ env.PROJECT_ROOT }}
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: ${{ env.PROJECT_ROOT }}/config/main.dockerfile
