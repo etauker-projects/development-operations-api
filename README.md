@@ -19,7 +19,7 @@ status | method | endpoint | description
 ### Short Term
 - [x] implement POST endpoint for database schema
 - [x] implement DELETE endpoint for database schema
-- [ ] configure github action to build docker image
+- [x] configure github action to build docker image
 - [ ] prepare kubernetes files (deployment, service, etc.)
 - [ ] decide how to run the deployments to the cluster
 - [ ] find how to authenticate to github docker registry during deployments ([link](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/))
