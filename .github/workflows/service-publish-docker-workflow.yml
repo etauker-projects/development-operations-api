@@ -6,7 +6,7 @@ on:
       - "main"
     paths: 
       - "service/**"
-      - ".github/workflows/service-*-workflow.yml"
+      # - ".github/workflows/service-*-workflow.yml"
 
     # TODO: decide on deployment strategy
     # tags: 

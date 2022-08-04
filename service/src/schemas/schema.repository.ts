@@ -8,8 +8,8 @@ export class SchemaRepository {
         name: string,
         strict = true,
     ): Promise<void> {
-        // TODO: sanitize input
         try {
+            this.ensureValidSymbol(name, 'name');
             await this.ensureSchemaDoesNotExist(transaction, name);
             const query = 'CREATE SCHEMA $name'.replace('$name', name);
             await transaction.continue(query);
@@ -23,8 +23,8 @@ export class SchemaRepository {
         name: string,
         strict = true,
     ): Promise<void> {
-        // TODO: sanitize input
         try {
+            this.ensureValidSymbol(name, 'name');
             await this.ensureSchemaExists(transaction, name);
             const query = 'DROP SCHEMA $name'.replace('$name', name);
             await transaction.continue(query);
@@ -59,6 +59,13 @@ export class SchemaRepository {
         const exists = await this.schemaExists(transaction, name);
         if (exists) {
             throw new HttpError(409, `Schema with name '${ name }' already exists`);
+        }
+    }
+
+    private ensureValidSymbol(input: string, symbol = 'symbol'): void {
+        const regex = /^[a-z|_]+$/u;        
+        if (!regex.test(input)) {
+            throw new HttpError(400, `Invalid ${ symbol } '${ input }' provided, only snake_case is allowed.`);
         }
     }
 

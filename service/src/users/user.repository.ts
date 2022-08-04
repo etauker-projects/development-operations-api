@@ -10,8 +10,9 @@ export class UserRepository {
         password: string,
         strict = true,
     ): Promise<void> {
-        // TODO: sanitize input
         try {
+            this.ensureValidSymbol(username, 'username');
+            this.ensureValidSecret(password, 'password');
             await this.ensureUserDoesNotExist(transaction, username);
             const query = 'CREATE USER $username WITH PASSWORD \'$password\''
                 .replace('$username', username)
@@ -28,8 +29,8 @@ export class UserRepository {
         username: string,
         strict = true,
     ): Promise<void> {
-        // TODO: sanitize input
         try {
+            this.ensureValidSymbol(username, 'username');
             await this.ensureUserExists(transaction, username);
             const query = 'DROP ROLE $username'.replace('$username', username);
             await transaction.continue(query);
@@ -43,10 +44,12 @@ export class UserRepository {
         schema: string,
         username: string,
     ): Promise<void> {
+        this.ensureValidSymbol(schema, 'schema');
+        this.ensureValidSymbol(username, 'username');
+
         await this.ensureUserExists(transaction, username);
         await new SchemaRepository().ensureSchemaExists(transaction, schema);
         
-        // TODO: sanitize input
         const query = 'ALTER ROLE $username SET search_path TO $schema'
             .replace('$username', username)
             .replace('$schema', schema)
@@ -58,6 +61,7 @@ export class UserRepository {
         transaction: PersistenceTransaction,
         name: string,
     ): Promise<boolean> {
+        this.ensureValidSymbol(name, 'name');
         const query = 'SELECT FROM pg_catalog.pg_roles WHERE rolname = $1;';
         const res = await transaction.continue(query, [ name ]);
         return res.results.length > 0;
@@ -67,6 +71,7 @@ export class UserRepository {
         transaction: PersistenceTransaction,
         name: string,
     ): Promise<void> {
+        this.ensureValidSymbol(name, 'name');
         const exists = await this.userExists(transaction, name);
         if (!exists) {
             throw new HttpError(409, `User with name '${ name }' not found`);
@@ -77,9 +82,23 @@ export class UserRepository {
         transaction: PersistenceTransaction,
         name: string,
     ): Promise<void> {
+        this.ensureValidSymbol(name, 'name');
         const exists = await this.userExists(transaction, name);
         if (exists) {
             throw new HttpError(409, `User with name '${ name }' already exists`);
+        }
+    }
+
+    private ensureValidSymbol(input: string, symbol = 'symbol'): void {
+        const regex = /^[a-z|_]+$/u;        
+        if (!regex.test(input)) {
+            throw new HttpError(400, `Invalid ${ symbol } '${ input }' provided, only snake_case is allowed.`);
+        }
+    }
+
+    private ensureValidSecret(input: string, symbol = 'symbol'): void {
+        if (input.includes(':') || input.includes(';') || input.includes('\\') || input.includes('"') || input.includes('`')) {
+            throw new HttpError(400, `Provided ${ symbol } contains invalid character(s).`);
         }
     }
 
