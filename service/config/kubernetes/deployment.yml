@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: development-operations-api
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: development-operations-api
+
+  template:
+    metadata:
+      labels:
+        app: development-operations-api
+
+    spec:
+      containers:
+      - name: main
+        image: ghcr.io/etauker-projects/development-operations-api-main:main
+        ports:
+        - containerPort: 9999
+        env:
+        - name: DATABASE_HOST
+          value: "http://postgres"
+        - name: DATABASE_PORT
+          value: "5432"
+
+      imagePullSecrets:
+      - name: github-registry

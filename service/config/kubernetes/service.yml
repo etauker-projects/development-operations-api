@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: development-operations-api
+  labels:
+    app: development-operations-api
+spec:
+  selector:
+    app: development-operations-api
+    type: LoadBalancer
+  ports:
+  - port: 2001
+    targetPort: 9999
