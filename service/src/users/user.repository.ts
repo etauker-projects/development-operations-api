@@ -27,13 +27,23 @@ export class UserRepository {
     public async dropUser(
         transaction: PersistenceTransaction,
         username: string,
+        admin: string,
         strict = true,
     ): Promise<void> {
         try {
             this.ensureValidSymbol(username, 'username');
             await this.ensureUserExists(transaction, username);
-            const query = 'DROP ROLE $username'.replace('$username', username);
-            await transaction.continue(query);
+
+            // re-assign all objects to admin
+            const reassignQuery = 'REASSIGN OWNED BY $user TO $admin'
+                .replace('$user', username)
+                .replace('$admin', admin)
+            ;
+            await transaction.continue(reassignQuery);
+
+            // drop role
+            const dropQuery = 'DROP ROLE $username'.replace('$username', username);
+            await transaction.continue(dropQuery);
         } catch (error) {
             if (strict) throw error;
         }
