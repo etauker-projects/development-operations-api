@@ -97,10 +97,13 @@ export class SchemaService {
         const transaction = connector.transact();
 
         try {
-            const strict = false; // handle non-existing objects gracefully
+            const strict = false; // false: handle non-existing objects gracefully
+            const dropUser = username => userRepository.dropUser(
+                transaction, username, adminCredentials.getUsername(), strict
+            );
             await schemaRepository.dropSchema(transaction, schema.getName(), strict);
-            await userRepository.dropUser(transaction, schema.getAdmin().getUsername(), strict);
-            await userRepository.dropUser(transaction, schema.getUser().getUsername(), strict);
+            await dropUser(schema.getAdmin().getUsername());
+            await dropUser(schema.getUser().getUsername());
             await transaction.commit();
         } catch (error) {
             await this.handleRollback(transaction);

@@ -1,6 +1,6 @@
 {
     "name": "@etauker/development-operations-api",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "description": "Provisioning and operations API for etauker projects.",
     "type": "module",
     "main": "dist/index.js",

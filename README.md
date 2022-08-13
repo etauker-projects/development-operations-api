@@ -23,6 +23,7 @@ status | method | endpoint | description
 - [x] prepare kubernetes files (deployment, service, etc.)
 - [x] decide how to run the deployments to the cluster (using `apply-all.sh`)
 - [x] find how to authenticate to github docker registry during deployments ([link](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/))
+- [ ] implement tracing logs
 - [ ] update code to call the correct host for the provided node
 
 ### Medium Term
