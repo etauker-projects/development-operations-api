@@ -20,9 +20,9 @@ status | method | endpoint | description
 - [x] implement POST endpoint for database schema
 - [x] implement DELETE endpoint for database schema
 - [x] configure github action to build docker image
-- [ ] prepare kubernetes files (deployment, service, etc.)
-- [ ] decide how to run the deployments to the cluster
-- [ ] find how to authenticate to github docker registry during deployments ([link](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/))
+- [x] prepare kubernetes files (deployment, service, etc.)
+- [x] decide how to run the deployments to the cluster (using `apply-all.sh`)
+- [x] find how to authenticate to github docker registry during deployments ([link](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/))
 - [ ] update code to call the correct host for the provided node
 
 ### Medium Term
