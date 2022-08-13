@@ -1,6 +1,7 @@
 import { IPersistenceConfig, PersistenceConnector, PersistenceTransaction, PoolFactory } from '@etauker/connector-postgres';
 import { HttpError } from '../api/api.module';
 import { Credentials } from '../credentials/credentials.module';
+import { PersistenceFactory } from '../persistence/persistence.factory';
 import { UserRepository } from '../users/user.module';
 import { Schema, SchemaRepository } from './schema.module';
 
@@ -13,13 +14,11 @@ export class SchemaService {
         schema: Schema,
     ): Promise<Schema> {
 
-        const config: IPersistenceConfig = {
-            database: databaseName,
-            user: adminCredentials.getUsername(),
-            password: adminCredentials.getPassword(),
-            ...this.getRemainingConnection(nodeName),
-        };
-
+        const config = PersistenceFactory.makeConfig(
+            databaseName,
+            adminCredentials.getUsername(),
+            adminCredentials.getPassword(),
+        );
         const connectionPool = new PoolFactory().makePool(config);
         const connector = new PersistenceConnector(connectionPool);
         const schemaRepository = new SchemaRepository();
@@ -86,13 +85,11 @@ export class SchemaService {
         schema: Schema,
     ): Promise<void> {
 
-        const config: IPersistenceConfig = {
-            database: databaseName,
-            user: adminCredentials.getUsername(),
-            password: adminCredentials.getPassword(),
-            ...this.getRemainingConnection(nodeName),
-        };
-
+        const config = PersistenceFactory.makeConfig(
+            databaseName,
+            adminCredentials.getUsername(),
+            adminCredentials.getPassword(),
+        );
         const connectionPool = new PoolFactory().makePool(config);
         const connector = new PersistenceConnector(connectionPool);
         const schemaRepository = new SchemaRepository();
@@ -144,19 +141,4 @@ export class SchemaService {
             console.warn(rollbackError);
         }
     }
-
-    // TODO: get configuration from factory or somewhere else
-    private getRemainingConnection(nodeName: string): Omit<IPersistenceConfig, 'database' | 'user' | 'password'> {
-        return {
-            // eslint-disable-next-line no-process-env
-            host: process.env.DATABASE_HOST, // TODO: use node name to determine the url
-            // eslint-disable-next-line no-process-env
-            port: parseInt(process.env?.DATABASE_PORT || '5432'),
-            ssl: false,
-            max: 1,                         // new pool used for each request (should change to not use pools here)
-            idleTimeoutMillis: 1000,        // close idle clients after 1 second
-            connectionTimeoutMillis: 1000,  // return an error after 1 second if connection could not be established
-        };
-    }
-
 }
