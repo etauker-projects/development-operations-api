@@ -27,6 +27,8 @@ spec:
           value: "http://postgres"
         - name: DATABASE_PORT
           value: "5432"
+        - name: LOGGER_LOG_LEVEL
+          value: "ALL"
 
       imagePullSecrets:
       - name: github-registry
