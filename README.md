@@ -24,7 +24,12 @@ status | method | endpoint | description
 - [x] decide how to run the deployments to the cluster (using `apply-all.sh`)
 - [x] find how to authenticate to github docker registry during deployments ([link](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/))
 - [ ] implement tracing logs
-- [ ] update code to call the correct host for the provided node
+- [ ] update code to call the correct database host for the provided node
+- [ ] set up nginx with correct reverse proxy on the development cluster 
+- [ ] set up basic auth for nginx
+- [ ] document manual nginx setup process
+- [ ] implement correct reverse proxy configuration
+- [ ] setup remote kubectl access
 
 ### Medium Term
 - [ ] implement POST endpoint for database
@@ -33,3 +38,7 @@ status | method | endpoint | description
 ### Long Term
 - [ ] implement client library (only needed when implementing a consumer that provides a UI)
 - [ ] implement asymmetric key encryption for credentials (v2)
+
+## References
+UFW: https://www.cyberciti.biz/faq/how-to-open-firewall-port-on-ubuntu-linux-12-04-14-04-lts/
+kubectl + nginx: https://faun.pub/accessing-a-remote-minikube-from-a-local-computer-fd6180dd66dd
