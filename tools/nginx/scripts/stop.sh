@@ -1,5 +1,7 @@
-# stop nginx proxy
+echo 'Stopping nginx-proxy container'
+echo '---'
 docker stop nginx-proxy
 
-# remove firewall entry when stopping nginx
+echo 'Deleting firewall entry on port 8000'
+echo '---'
 sudo ufw delete allow 8000

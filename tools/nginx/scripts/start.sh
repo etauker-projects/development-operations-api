@@ -1,7 +1,8 @@
 # assumes the script to be run from root directory
 cd ./tools/nginx
 
-# TODO: move to docker compose
+echo 'Starting nginx-proxy container'
+echo '---'
 docker run \
   --name nginx-proxy \
   -p 8000:80 \
@@ -10,7 +11,8 @@ docker run \
   --net="host" \
   --rm nginx
 
-# expose the port through firewall
+echo 'Exposing port 8000 through firewall'
+echo '---'
 sudo ufw allow 8000
 
 # http://localhost:8000/#/workloads?namespace=default - outside service
