@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Simplifies the deployment and maintenance of development clusters.",
   "scripts": {
-    "start-docker": "echo 'to do'",
-    "stop-docker": "echo 'to do'",
+    "start-docker": "bash ./tools/docker/scripts/start.sh",
+    "stop-docker": "bash ./tools/docker/scripts/stop.sh",
     "start-minikube": "bash ./tools/minikube/scripts/start.sh",
     "stop-minikube": "bash ./tools/minikube/scripts/stop.sh",
     "start-nginx": "bash ./tools/nginx/scripts/start.sh",
