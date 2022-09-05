@@ -7,9 +7,11 @@ The goal of operations API is to simplify the provisioning and maintenance of th
 Before the API is deployed, there are a number of manual or semi-automated (scripted) steps which must be carried out to initialise the cluster:
 
 - [ ] configure host os (not documented)
-- [ ] set up docker (not documented)
-- [ ] set up minikube (not documented)
-- [x] set up nginx (`npm run start-nginx`)
+- [ ] install docker (not documented)
+- [ ] install minikube (not documented)
+- [x] start up docker (`npm run start-docker`)
+- [x] start up minikube (`npm run start-minikube`)
+- [x] start up nginx (`npm run start-nginx`)
 
 ## API
 
