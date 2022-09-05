@@ -10,5 +10,8 @@ docker run \
   --net="host" \
   --rm nginx
 
-  # http://localhost:8000/#/workloads?namespace=default - outside service
-  # http://dev.etauker.ie/#/workloads?namespace=default - inside server
+# expose the port through firewall
+sudo ufw allow 8000
+
+# http://localhost:8000/#/workloads?namespace=default - outside service
+# http://dev.etauker.ie/#/workloads?namespace=default - inside server
