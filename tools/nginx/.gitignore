@@ -1,2 +1,2 @@
 ./mnt/.htpasswd
-./mnt/minikube.conf
+./mnt/conf.d/minikube.conf
