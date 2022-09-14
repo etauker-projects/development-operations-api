@@ -1,0 +1,23 @@
+{
+  "name": "development-operations-manager",
+  "version": "1.0.0",
+  "description": "Simplifies the deployment and maintenance of development clusters.",
+  "scripts": {
+    "start-docker": "bash ./tools/docker/scripts/start.sh",
+    "stop-docker": "bash ./tools/docker/scripts/stop.sh",
+    "start-minikube": "bash ./tools/minikube/scripts/start.sh",
+    "stop-minikube": "bash ./tools/minikube/scripts/stop.sh",
+    "start-nginx": "bash ./tools/nginx/scripts/start.sh",
+    "stop-nginx": "bash ./tools/nginx/scripts/stop.sh",
+    "start": "npm run start-docker && npm run start-minikube && npm run start-nginx",
+    "stop": "npm run stop-nginx && npm run stop-minikube && npm run stop-docker "
+  },
+  "author": {
+    "name": "Tautvydas Kersulis",
+    "email": "etauker@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/etauker-projects/development-operations-api/issues"
+  },
+  "homepage": "https://github.com/etauker-projects/development-operations-api#readme"
+}
