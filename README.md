@@ -35,11 +35,11 @@ status | method | endpoint | description
 - [x] find how to authenticate to github docker registry during deployments ([link](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/))
 - [ ] implement tracing logs
 - [ ] update code to call the correct database host for the provided node
-- [ ] set up nginx with correct reverse proxy on the development cluster 
-- [ ] set up basic auth for nginx
-- [ ] document manual nginx setup process
-- [ ] implement correct reverse proxy configuration
-- [ ] setup remote kubectl access
+- [x] set up nginx with correct reverse proxy on the development cluster 
+- [x] set up basic auth for nginx
+- [x] document manual nginx setup process
+- [x] implement correct reverse proxy configuration
+- [x] setup remote kubectl access
 
 ### Medium Term
 - [ ] implement POST endpoint for database
