@@ -9,5 +9,6 @@ spec:
     app: development-operations-api
   ports:
   - port: 2001
+    nodePort: 30001
     targetPort: 9999
   type: LoadBalancer
