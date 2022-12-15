@@ -25,6 +25,7 @@ docker run \
   --name nginx-proxy \
   -p 8000:80 \
   -p 8443:8443 \
+  -p 8123:8123 \
   -d \
   -v `pwd`/mnt/.htpasswd:/etc/nginx/.htpasswd \
   -v `pwd`/mnt/nginx.conf:/etc/nginx/nginx.conf \
@@ -39,6 +40,7 @@ echo 'Exposing ports through firewall'
 echo '---'
 sudo ufw allow 8000
 sudo ufw allow 8443
+sudo ufw allow 8123
 
 # http://localhost:8000/#/workloads?namespace=default - outside server
 # http://dev.etauker.ie/#/workloads?namespace=default - inside server
