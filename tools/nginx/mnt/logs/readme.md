@@ -1,0 +1,1 @@
+This directory is used for storing nginx log files.
