@@ -64,7 +64,7 @@ Development operations API simplifies some common tasks related to setting up an
 
 1. a rest client makes a request to the host of the kubernetes cluster
 2. nginx forwards the request to the load balancer of the cluster (see [load balancers](#load-balancers) section)
-3. load balancer forwards the request to the correct service
+3. load balancer forwards the request to the correct service (how does it know which service to forward to?)
 4. development-operations-api application executes the required SQL / DDL statements in postgres
 
 
