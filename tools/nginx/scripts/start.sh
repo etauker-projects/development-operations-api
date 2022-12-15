@@ -29,6 +29,7 @@ docker run \
   -v `pwd`/mnt/.htpasswd:/etc/nginx/.htpasswd \
   -v `pwd`/mnt/nginx.conf:/etc/nginx/nginx.conf \
   -v `pwd`/mnt/conf.d/:/etc/nginx/conf.d \
+  -v `pwd`/mnt/logs:/var/log/nginx \
   -v /home/etauker/.minikube/profiles/minikube/client.key:/etc/nginx/certs/minikube-client.key \
   -v /home/etauker/.minikube/profiles/minikube/client.crt:/etc/nginx/certs/minikube-client.crt \
   --net="host" \
