@@ -1,2 +1,3 @@
 mnt/.htpasswd
 mnt/conf.d/minikube.conf
+mnt/logs/*
