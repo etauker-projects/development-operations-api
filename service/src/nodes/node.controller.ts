@@ -144,27 +144,11 @@ export class NodeController extends ApiController {
         req: Request,
         res: Response
     ): Promise<IResponse<void>> {
-
-        const dtoSchema = z.object({
-            name: z.string().min(5),
-            admin: z.string().min(5),
-            user: z.string().min(5),
-        }).strict();
-
-        const request = dtoSchema.parse(req.body);
         const nodeName = req.params.nodeId;
+        const schemaName = req.params.schemaId;
         const databaseName = req.params.databaseId;
         const adminCredentials = this.parseCredentials(req.header('authorization'));
-
-        // convert request to an entity
-        const schema = new Schema(
-            request.name,
-            this.credentialsService.decodeCredentials(request.admin, ''),
-            this.credentialsService.decodeCredentials(request.user, ''),
-        );
-
-        // call the service and return result
-        await this.schemaService.removeSchema(nodeName, databaseName, adminCredentials, schema);
+        await this.schemaService.removeSchema(nodeName, databaseName, adminCredentials, schemaName);
         return { status: 204, body: undefined };
     }
 

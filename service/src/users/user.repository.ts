@@ -1,9 +1,17 @@
 import { PersistenceTransaction } from '@etauker/connector-postgres';
 import { HttpError } from '../api/api.module';
+import { LogFactory } from '../logs/log.factory';
+import { LogService } from '../logs/log.service';
 import { SchemaRepository } from '../schemas/schema.module';
 import { User } from './user.interface';
 
 export class UserRepository {
+
+    private logger: LogService;
+
+    constructor() {
+        this.logger = LogFactory.makeService();
+    }
 
     /**
      * Returns users that have provided schema set as their default search path.
@@ -12,6 +20,7 @@ export class UserRepository {
     public async selectUsersBySchema(
         transaction: PersistenceTransaction,
         schema: string,
+        strict = true,
     ): Promise<User[]> {
         this.ensureValidSymbol(schema, 'schema');
         const query = `
@@ -29,7 +38,7 @@ export class UserRepository {
             id: number,
         }>(query);
 
-        if (res.results.length < 1) {
+        if (strict && res.results.length < 1) {
             throw new HttpError(400, 'No users found');
         }
 
@@ -65,18 +74,78 @@ export class UserRepository {
         try {
             this.ensureValidSymbol(username, 'username');
             await this.ensureUserExists(transaction, username);
-
-            // re-assign all objects to admin
-            const reassignQuery = 'REASSIGN OWNED BY $user TO $admin'
-                .replace('$user', username)
-                .replace('$admin', admin)
-            ;
-            await transaction.continue(reassignQuery);
-
-            // drop role
-            const dropQuery = 'DROP ROLE $username'.replace('$username', username);
-            await transaction.continue(dropQuery);
+            await this.grantRoleToUser(transaction, username, admin, strict);
+            await this.reassignOwned(transaction, username, admin, strict);
+            await this.dropRole(transaction, username);
         } catch (error) {
+            this.logger.error(`error dropping user '${ username }'`, '', error);
+            if (strict) throw error;
+        }
+    }
+
+    public async grantRoleToUser(
+        transaction: PersistenceTransaction,
+        role: string,
+        username: string,
+        strict: boolean,
+    ): Promise<void> {
+        try {
+            this.ensureValidSymbol(role, 'role');
+            await this.ensureUserExists(transaction, username);
+
+            const query = 'GRANT $role TO $user'
+                .replace('$role', role)
+                .replace('$user', username)
+            ;
+
+            await transaction.continue(query);
+            this.logger.trace(`'${ role }' role granted to '${ username }'`);
+        } catch (error) {
+            this.logger.error(`error granting role '${ role }' to '${ username }'`, '', error);
+            if (strict) throw error;
+        }
+    }
+
+    /**
+     * Re-assign ownership of all objects to another user.
+     */
+    public async reassignOwned(
+        transaction: PersistenceTransaction,
+        from: string,
+        to: string,
+        strict = true,
+    ): Promise<void> {
+        try {
+            this.ensureValidSymbol(from, 'username');
+            await this.ensureUserExists(transaction, from);
+            await this.ensureUserExists(transaction, to);
+
+            const query = 'REASSIGN OWNED BY $from TO $to'
+                .replace('$from', from)
+                .replace('$to', to)
+            ;
+
+            await transaction.continue(query);
+            this.logger.trace(`re-assigned object ownership from '${ from }' to '${ to }'`);
+        } catch (error) {
+            this.logger.error(`error re-assigning object ownership from '${ from }' to '${ to }'`, '', error);
+            if (strict) throw error;
+        }
+    }
+
+    public async dropRole(
+        transaction: PersistenceTransaction,
+        role: string,
+        strict = true,
+    ): Promise<void> {
+        try {
+            this.ensureValidSymbol(role, 'role');
+            await this.ensureUserExists(transaction, role);
+            const query = 'DROP ROLE $role'.replace('$role', role);
+            await transaction.continue(query);
+            this.logger.trace(`dropped '${ role }'`);
+        } catch (error) {
+            this.logger.error(`error dropping role '${ role }'`, '', error);
             if (strict) throw error;
         }
     }
@@ -132,7 +201,7 @@ export class UserRepository {
     }
 
     private ensureValidSymbol(input: string, symbol = 'symbol'): void {
-        const regex = /^[a-z|_]+$/u;        
+        const regex = /^[a-z0-9|_]+$/u;        
         if (!regex.test(input)) {
             throw new HttpError(400, `Invalid ${ symbol } '${ input }' provided, only snake_case is allowed.`);
         }

@@ -72,7 +72,7 @@ export class SchemaService {
             await transaction2.commit();
             return schema;
         } catch (error) {
-            await this.removeSchema(nodeName, databaseName, adminCredentials, schema);
+            await this.removeSchema(nodeName, databaseName, adminCredentials, schema.getName());
             await this.handleRollback(transaction2);
             throw this.convertError(error);
         }
@@ -135,7 +135,7 @@ export class SchemaService {
         nodeName: string,
         databaseName: string,
         adminCredentials: Credentials,
-        schema: Schema,
+        schemaName: string,
     ): Promise<void> {
 
         const config = PersistenceFactory.makeConfig(
@@ -154,9 +154,15 @@ export class SchemaService {
             const dropUser = username => userRepository.dropUser(
                 transaction, username, adminCredentials.getUsername(), strict
             );
-            await schemaRepository.dropSchema(transaction, schema.getName(), strict);
-            await dropUser(schema.getAdmin().getUsername());
-            await dropUser(schema.getUser().getUsername());
+
+            const users = await userRepository.selectUsersBySchema(transaction, schemaName, strict);
+            if (users.length > 2) {
+                throw new Error('Too many users found for schema, deletion aborted');
+            }
+
+            await schemaRepository.dropSchema(transaction, schemaName, strict);
+            const promises = users.map(user => dropUser(user.username));
+            await Promise.all(promises);
             await transaction.commit();
         } catch (error) {
             await this.handleRollback(transaction);
