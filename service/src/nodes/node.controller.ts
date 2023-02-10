@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { ApiController, HttpError, IResponse } from '../api/api.module';
 import { Schema, SchemaDto, SchemaService } from '../schemas/schema.module';
 import { Credentials, CredentialsService } from '../credentials/credentials.module';
+import { LogFactory } from '../logs/log.factory';
 
 
 export class NodeController extends ApiController {
@@ -19,7 +20,7 @@ export class NodeController extends ApiController {
     //               CONSTRUCTOR
     // ===========================================
     constructor() {
-        super();
+        super(LogFactory.makeService());
         // eslint-disable-next-line new-cap
         this.router = express.Router();
         this.credentialsService = new CredentialsService();
@@ -44,7 +45,7 @@ export class NodeController extends ApiController {
     // ===========================================
     //               PUBLIC FUNCTIONS
     // ===========================================
-    public getRouter() {
+    public getRouter(prefix: string) {
         this.router.use((bodyParser as any).default.json());         // to support JSON-encoded bodies
         // this.router.use(cookieParser.default());
         this.router.use((bodyParser as any).default.urlencoded({     // to support URL-encoded bodies
@@ -53,14 +54,49 @@ export class NodeController extends ApiController {
 
         //  Endpoint registrations
         this.registerEndpoints(this.router, [
-            // TODO: { method: 'post', endpoint: '/:nodeId/database', handler: this.postDatabase },
-            // TODO: { method: 'delete', endpoint: '/:nodeId/database/:databaseId', handler: this.deleteDatabase },
-            { method: 'post', endpoint: '/:nodeId/databases/:databaseId/schemas', handler: this.postSchema },
-            { method: 'delete', endpoint: '/:nodeId/databases/:databaseId/schemas/:schemaId', handler: this.deleteSchema },
+            // TODO: { method: 'post', endpoint: `${ prefix }/:nodeId/database`, handler: this.postDatabase },
+            // TODO: { method: 'delete', endpoint: `${ prefix }/:nodeId/database/:databaseId`, handler: this.deleteDatabase },
+            { method: 'get', endpoint: `${ prefix }/:nodeId/databases/:databaseId/schemas`, handler: this.getSchemas },
+            { method: 'get', endpoint: `${ prefix }/:nodeId/databases/:databaseId/schemas/:schemaId`, handler: this.getSchema },
+            { method: 'post', endpoint: `${ prefix }/:nodeId/databases/:databaseId/schemas`, handler: this.postSchema },
+            { method: 'delete', endpoint: `${ prefix }/:nodeId/databases/:databaseId/schemas/:schemaId`, handler: this.deleteSchema },
         ]);
         return this.router;
     }
 
+    public async getSchemas(
+        endpoint: string,
+        req: Request,
+        res: Response
+    ): Promise<IResponse<string[]>> {
+        const nodeName = req.params.nodeId;
+        const databaseName = req.params.databaseId;
+        const adminCredentials = this.parseCredentials(req.header('authorization'));
+        const list = await this.schemaService.listSchemas(nodeName, databaseName, adminCredentials);
+        return { status: 200, body: list };
+    }
+
+    public async getSchema(
+        endpoint: string,
+        req: Request,
+        res: Response
+    ): Promise<IResponse<SchemaDto>> {
+        const nodeName = req.params.nodeId;
+        const databaseName = req.params.databaseId;
+        const schemaName = req.params.schemaId;
+        const adminCredentials = this.parseCredentials(req.header('authorization'));
+        const created = await this.schemaService.getSchema(
+            nodeName, databaseName, schemaName, adminCredentials
+        );
+
+        const dto: SchemaDto = {
+            name: created.getName(),
+            admin: created.getAdmin().getUsername(),
+            user: created.getUser().getUsername(),
+        };
+
+        return { status: 200, body: dto };
+    }
 
     public async postSchema(
         endpoint: string,

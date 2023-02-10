@@ -52,7 +52,7 @@ export class OperationsServer {
     }
 
     private bootstrap(): OperationsServer {
-        this.app.use(this.apiRoot + '/v1/nodes', NodeController.getInstance().getRouter());
+        this.app.use(NodeController.getInstance().getRouter(this.apiRoot + '/v1/nodes'));
         return this;
     }
 }

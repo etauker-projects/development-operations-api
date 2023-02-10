@@ -1,8 +1,40 @@
 import { PersistenceTransaction } from '@etauker/connector-postgres';
 import { HttpError } from '../api/api.module';
 import { SchemaRepository } from '../schemas/schema.module';
+import { User } from './user.interface';
 
 export class UserRepository {
+
+    /**
+     * Returns users that have provided schema set as their default search path.
+     * Also excludes users with extended security permissions.
+     */
+    public async selectUsersBySchema(
+        transaction: PersistenceTransaction,
+        schema: string,
+    ): Promise<User[]> {
+        this.ensureValidSymbol(schema, 'schema');
+        const query = `
+            SELECT 
+                u.usesysid as id,
+                u.usename as username
+            FROM pg_user u
+            WHERE array_to_string(useconfig, ',') LIKE 'search_path=${ schema }'
+            AND u.usecreatedb = false
+            AND u.usesuper = false
+            AND u.usebypassrls = false
+        `;
+        const res = await transaction.continue<{
+            username: string, 
+            id: number,
+        }>(query);
+
+        if (res.results.length < 1) {
+            throw new HttpError(400, 'No users found');
+        }
+
+        return res.results;
+    }
 
     public async createUser(
         transaction: PersistenceTransaction,

@@ -1,4 +1,4 @@
-import { IPersistenceConfig, PersistenceConnector, PersistenceTransaction, PoolFactory } from '@etauker/connector-postgres';
+import { PersistenceConnector, PersistenceTransaction, PoolFactory } from '@etauker/connector-postgres';
 import { HttpError } from '../api/api.module';
 import { Credentials } from '../credentials/credentials.module';
 import { PersistenceFactory } from '../persistence/persistence.factory';
@@ -75,6 +75,59 @@ export class SchemaService {
             await this.removeSchema(nodeName, databaseName, adminCredentials, schema);
             await this.handleRollback(transaction2);
             throw this.convertError(error);
+        }
+    }
+
+    async listSchemas(
+        nodeName: string,
+        databaseName: string,
+        adminCredentials: Credentials,
+    ): Promise<string[]> {
+
+        const config = PersistenceFactory.makeConfig(
+            databaseName,
+            adminCredentials.getUsername(),
+            adminCredentials.getPassword(),
+        );
+        
+        const connectionPool = new PoolFactory().makePool(config);
+        const connector = new PersistenceConnector(connectionPool);
+        const schemaRepository = new SchemaRepository();
+        const transaction = connector.transact();
+
+        try {
+            return await schemaRepository.listSchemas(transaction);
+        } catch (error) {
+            throw this.convertError(error);
+        } finally {
+            transaction.end(false);
+        }
+    }
+
+    async getSchema(
+        nodeName: string,
+        databaseName: string,
+        schemaName: string,
+        adminCredentials: Credentials,
+    ): Promise<Schema> {
+
+        const config = PersistenceFactory.makeConfig(
+            databaseName,
+            adminCredentials.getUsername(),
+            adminCredentials.getPassword(),
+        );
+        
+        const connectionPool = new PoolFactory().makePool(config);
+        const connector = new PersistenceConnector(connectionPool);
+        const schemaRepository = new SchemaRepository();
+        const transaction = connector.transact();
+
+        try {
+            return await schemaRepository.getSchema(transaction, schemaName);
+        } catch (error) {
+            throw this.convertError(error);
+        } finally {
+            transaction.end(false);
         }
     }
 
