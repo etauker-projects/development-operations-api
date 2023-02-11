@@ -6,3 +6,4 @@ export * from './database-with-credentials.dto';
 // core
 export * from './database.service';
 export * from './database.repository';
+export * from './database.controller';

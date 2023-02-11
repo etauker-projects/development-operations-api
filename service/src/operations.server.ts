@@ -1,8 +1,9 @@
-// import { IPersistenceConfig, IPool, PersistenceConnector, PoolFactory } from '@etauker/connector-postgres';
 import express, { Request, Response, NextFunction } from 'express';
 import { Server as HttpServer } from 'http';
 import { LogService, LogFactory } from './logs/log.module';
 import { NodeController } from './nodes/node.module';
+import { DatabaseController } from './databases/database.controller';
+import { SchemaController } from './schemas/schema.module';
 
 
 export class OperationsServer {
@@ -52,7 +53,9 @@ export class OperationsServer {
     }
 
     private bootstrap(): OperationsServer {
-        this.app.use(NodeController.getInstance().getRouter(this.apiRoot + '/v1/nodes'));
+        this.app.use(NodeController.getInstance().getRouter(this.apiRoot + '/v1'));
+        this.app.use(DatabaseController.getInstance().getRouter(this.apiRoot + '/v1/nodes/:nodeId'));
+        this.app.use(SchemaController.getInstance().getRouter(this.apiRoot + '/v1/nodes/:nodeId/databases/:databaseId'));
         return this;
     }
 }

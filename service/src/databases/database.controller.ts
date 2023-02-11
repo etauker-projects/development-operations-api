@@ -1,13 +1,13 @@
 /* eslint-disable require-await */
 import * as bodyParser from 'body-parser';
-import express from 'express';
-import { ApiController } from '../api/api.module';
+import express, { Request, Response } from 'express';
+import { ApiController, IResponse } from '../api/api.module';
 import { LogFactory } from '../logs/log.factory';
 
 
-export class NodeController extends ApiController {
+export class DatabaseController extends ApiController {
 
-    private static instance?: NodeController;
+    private static instance?: DatabaseController;
     private router: express.Router;
 
 
@@ -23,15 +23,15 @@ export class NodeController extends ApiController {
     // ===========================================
     //               STATIC FUNCTIONS
     // ===========================================
-    public static getInstance(): NodeController {
-        if (!NodeController.instance) {
-            NodeController.instance = new NodeController();
+    public static getInstance(): DatabaseController {
+        if (!DatabaseController.instance) {
+            DatabaseController.instance = new DatabaseController();
         }
-        return NodeController.instance;
+        return DatabaseController.instance;
     }
 
     public static resetInstance(): void {
-        NodeController.instance = undefined;
+        DatabaseController.instance = undefined;
     }
 
 
@@ -44,8 +44,15 @@ export class NodeController extends ApiController {
             extended: true
         }));
 
-        //  Endpoint registrations
-        this.registerEndpoints(this.router, []);
+        this.registerEndpoints(this.router, [
+            { method: 'get', endpoint: `${ prefix }/databases`, handler: this.getDatabases },
+        ]);
         return this.router;
+    }
+
+    public async getDatabases(endpoint: string, req: Request, res: Response): Promise<IResponse<string[]>> {
+        // TODO: check credentials
+        // return { status: 200, body: [ 'local_01' ]};
+        return { status: 501, body: []};
     }
 }

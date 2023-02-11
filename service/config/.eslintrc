@@ -18,7 +18,7 @@
     ],
     "rules": {
         "accessor-pairs": "error",
-        "array-bracket-newline": "error",
+        "array-bracket-newline": "off",
         "array-bracket-spacing": ["error", "always", {
             "objectsInArrays": false,
             "arraysInArrays": false
@@ -82,7 +82,7 @@
         "max-classes-per-file": "error",
         "max-depth": "error",
         "max-len": ["error", {
-            "code": 100,
+            "code": 120,
             "ignoreTrailingComments": true,
             "ignoreComments": true,
             "ignoreUrls": true,

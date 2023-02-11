@@ -1,3 +1,4 @@
+/* eslint-disable no-process-env */
 import dotenv from 'dotenv';
 import { OperationsServer } from './operations.server';
 
