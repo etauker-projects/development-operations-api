@@ -55,8 +55,10 @@ export class LogService {
                 console.log(colour, content);
             }
             else if (this.outputFormat === 'BASIC') {
+                const hasStack = Boolean(entry.stack());
                 const content = `${ entry.category() }: ${ entry.message() } ${ entry.details() }`;
                 console.log(colour, content);
+                if (hasStack) console.log(colour, entry.stack());
             }
             else if (this.outputFormat === 'GROUP') {
                 console.log(colour, entry.category());
@@ -67,6 +69,7 @@ export class LogService {
                 // if (entry.datetime()) console.log(colour, `time: ${ entry.datetime().format('HH:mm:ss') }`);
                 console.log(colour, `message: ${ entry.message() }`);
                 if (entry.details()) console.log(colour, `details: ${ entry.details() }`);
+                if (entry.stack()) console.log(colour, `stack: ${ entry.stack() }`);
                 console.groupEnd();
             }
         }

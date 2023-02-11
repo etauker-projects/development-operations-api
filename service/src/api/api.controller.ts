@@ -33,7 +33,7 @@ export class ApiController {
             };
             
             router[method](endpoint, handler);
-            this.logger.info(`registered: ${ method.toUpperCase() } ${ endpoint }`);
+            this.logger.info(`REGISTERED: ${ method.toUpperCase() } ${ endpoint }`);
         });
     }
 

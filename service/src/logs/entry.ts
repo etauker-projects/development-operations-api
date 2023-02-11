@@ -5,8 +5,8 @@ export class Entry {
 
     private _category: Category;
     private _message: string;
-    private _tracker: string;
-    private _object: string;
+    private _tracker?: string;
+    private _object: any;
     private _datetime: moment.Moment;
 
     constructor(
@@ -32,10 +32,16 @@ export class Entry {
         return this._message;
     }
     public tracker(): string {
-        return this._tracker;
+        return this._tracker || '';
     }
     public details(): string {
-        return this._object ? JSON.stringify(this._object) : '';
+        if (this._object && !(this._object instanceof Error)) {
+            return JSON.stringify(this._object);
+        }
+        return '';
+    }
+    public stack(): string | undefined {
+        return this._object?.stack;
     }
     public json(): any {
         return {
@@ -44,6 +50,7 @@ export class Entry {
             message: this.message(),
             tracker: this.tracker(),
             details: this.details(),
+            stack: this.stack(),
         };
     }
 
