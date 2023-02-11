@@ -41,6 +41,8 @@ export class OperationsServer {
     public stop(): OperationsServer {
         this.server.close();
         NodeController.resetInstance();
+        DatabaseController.resetInstance();
+        SchemaController.resetInstance();
         return this;
     }
 

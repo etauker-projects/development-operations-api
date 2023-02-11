@@ -6,7 +6,7 @@ import { Schema } from './schema';
 export class SchemaRepository {
 
     public async listSchemas(
-        transaction: PersistenceTransaction,
+        connector: PersistenceConnector,
         strict = true,
     ): Promise<string[]> {
 
@@ -17,9 +17,9 @@ export class SchemaRepository {
                 WHERE n.nspname !~ '^pg_'
                 AND n.nspname <> 'information_schema'
                 AND n.nspname <> 'public';
-            `;
-            const response = await transaction.continue<{ schema_name: string }>(query);
-            return response.results.map(res => res.schema_name);
+            `.replace(/\n/ug, ' ');
+            const results = await connector.select<{ schema_name: string }>(query, []);
+            return results.map(res => res.schema_name);
         } catch (error) {
             if (strict) throw error;
             return [];

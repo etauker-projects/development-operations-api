@@ -93,14 +93,11 @@ export class SchemaService {
         const connectionPool = new PoolFactory().makePool(config);
         const connector = new PersistenceConnector(connectionPool);
         const schemaRepository = new SchemaRepository();
-        const transaction = connector.transact();
 
         try {
-            return await schemaRepository.listSchemas(transaction);
+            return await schemaRepository.listSchemas(connector);
         } catch (error) {
             throw this.convertError(error);
-        } finally {
-            transaction.end(false);
         }
     }
 
