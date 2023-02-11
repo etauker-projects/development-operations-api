@@ -35,7 +35,7 @@ export class SchemaRepository {
 
     public async getSchema(
         context: RequestContext, 
-        transaction: PersistenceTransaction,
+        connector: PersistenceConnector,
         schemaName: string,
     ): Promise<Schema> {
 
@@ -54,22 +54,22 @@ export class SchemaRepository {
                 AND n.nspname = '${ schemaName }';
             `;
 
-            const response = await transaction.continue<{
+            const results = await connector.select<{
                 owner_id: string,
                 owner_username: string,
                 schema_name: string,
                 schema_acl: string,
-            }>(query);
+            }>(query.replace(/\n/ug, ' '));
             
-            this.logger.debug(`Found schema`, context.tracer, response.results);
+            this.logger.debug(`Found schema`, context.tracer, results);
 
-            if (response.results.length < 1) {
+            if (results.length < 1) {
                 throw new HttpError(404, 'Schema not found');
-            } else if (response.results.length > 1) {
+            } else if (results.length > 1) {
                 throw new HttpError(500, 'Multiple schemas found');
             }
 
-            const schema = response.results[0];
+            const schema = results[0];
 
             // extract list of users with permissions for this schema
             const userPermissions = schema.schema_acl.replace(/[{}]/ug, '').split(',');

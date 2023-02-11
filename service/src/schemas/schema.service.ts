@@ -135,16 +135,12 @@ export class SchemaService {
         const connectionPool = new PoolFactory().makePool(config);
         const connector = new PersistenceConnector(connectionPool);
         const schemaRepository = new SchemaRepository();
-        const transaction = connector.transact();
         this.logger.trace(`Services instantiated`, context.tracer);
 
         try {
-            return await schemaRepository.getSchema(context, transaction, schemaName);
+            return await schemaRepository.getSchema(context, connector, schemaName);
         } catch (error) {
             throw this.convertError(error);
-        } finally {
-            // TODO: clean up
-            transaction.end(false);
         }
     }
 
