@@ -2,6 +2,8 @@
 import * as bodyParser from 'body-parser';
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
+import { randomUUID } from 'crypto';
+import { RequestContext } from '../api/request-context.interface';
 import { ApiController, HttpError, IResponse } from '../api/api.module';
 import { Schema, SchemaDto, SchemaService } from './schema.module';
 import { Credentials, CredentialsService } from '../credentials/credentials.module';
@@ -60,45 +62,52 @@ export class SchemaController extends ApiController {
         return this.router;
     }
 
-    public async getSchemas(
-        endpoint: string,
-        req: Request,
-        res: Response
-    ): Promise<IResponse<string[]>> {
+    public async getSchemas(endpoint: string, req: Request, res: Response): Promise<IResponse<string[]>> {
+        // TODO: get from API request headers
+        const context: RequestContext = { tracer: randomUUID() };
+        this.logger.trace(`Received GET request for '${ endpoint }'`, context.tracer);
+
         const nodeName = req.params.nodeId;
         const databaseName = req.params.databaseId;
         const adminCredentials = this.parseCredentials(req.header('authorization'));
-        const list = await this.schemaService.listSchemas(nodeName, databaseName, adminCredentials);
+        this.logger.trace(`Parsed provided input`, context.tracer);
+
+        const list = await this.schemaService.listSchemas(context, nodeName, databaseName, adminCredentials);
+        this.logger.trace(`Executed request logic`, context.tracer);
+
         return { status: 200, body: list };
     }
 
-    public async getSchema(
-        endpoint: string,
-        req: Request,
-        res: Response
-    ): Promise<IResponse<SchemaDto>> {
+    public async getSchema(endpoint: string, req: Request, res: Response): Promise<IResponse<SchemaDto>> {
+        // TODO: get from API request headers
+        const context: RequestContext = { tracer: randomUUID() };
+        this.logger.trace(`Received GET request for '${ endpoint }'`, context.tracer);
+
         const nodeName = req.params.nodeId;
         const databaseName = req.params.databaseId;
         const schemaName = req.params.schemaId;
         const adminCredentials = this.parseCredentials(req.header('authorization'));
+        this.logger.trace(`Parsed provided input`, context.tracer);
+
         const created = await this.schemaService.getSchema(
-            nodeName, databaseName, schemaName, adminCredentials
+            context, nodeName, databaseName, schemaName, adminCredentials
         );
+        this.logger.trace(`Executed request logic`, context.tracer);
 
         const dto: SchemaDto = {
             name: created.getName(),
             admin: created.getAdmin().getUsername(),
             user: created.getUser().getUsername(),
         };
+        this.logger.trace(`Formatted response object`, context.tracer);
 
         return { status: 200, body: dto };
     }
 
-    public async postSchema(
-        endpoint: string,
-        req: Request,
-        res: Response
-    ): Promise<IResponse<SchemaDto>> {
+    public async postSchema(endpoint: string, req: Request, res: Response): Promise<IResponse<SchemaDto>> {
+        // TODO: get from API request headers
+        const context: RequestContext = { tracer: randomUUID() };
+        this.logger.trace(`Received POST request for '${ endpoint }'`, context.tracer);
 
         const dtoSchema = z.object({
             name: z.string().min(5),
@@ -112,39 +121,43 @@ export class SchemaController extends ApiController {
         const nodeName = req.params.nodeId;
         const databaseName = req.params.databaseId;
         const adminCredentials = this.parseCredentials(req.header('authorization'));
-
-        // convert request to an entity
         const schema = new Schema(
             request.name,
             this.credentialsService.decodeCredentials(request.admin, request.adminPassword),
             this.credentialsService.decodeCredentials(request.user, request.userPassword),
         );
-
-        // call the service and return result
+        this.logger.trace(`Parsed provided input`, context.tracer);
+        
         const created = await this.schemaService.initialiseSchema(
-            nodeName, databaseName, adminCredentials, schema
+            context, nodeName, databaseName, adminCredentials, schema
         );
+        this.logger.trace(`Executed request logic`, context.tracer);
 
         const dto: SchemaDto = {
             name: created.getName(),
             admin: created.getAdmin().getUsername(),
             user: created.getUser().getUsername(),
         };
+        this.logger.trace(`Formatted response object`, context.tracer);
 
         return { status: 200, body: dto };
     }
 
 
-    public async deleteSchema(
-        endpoint: string,
-        req: Request,
-        res: Response
-    ): Promise<IResponse<void>> {
+    public async deleteSchema(endpoint: string, req: Request, res: Response): Promise<IResponse<void>> {
+        // TODO: get from API request headers
+        const context: RequestContext = { tracer: randomUUID() };
+        this.logger.trace(`Received DELETE request for '${ endpoint }'`, context.tracer);
+
         const nodeName = req.params.nodeId;
         const schemaName = req.params.schemaId;
         const databaseName = req.params.databaseId;
         const adminCredentials = this.parseCredentials(req.header('authorization'));
-        await this.schemaService.removeSchema(nodeName, databaseName, adminCredentials, schemaName);
+        this.logger.trace(`Parsed provided input`, context.tracer);
+
+        await this.schemaService.removeSchema(context, nodeName, databaseName, adminCredentials, schemaName);
+        this.logger.trace(`Formatted response object`, context.tracer);
+
         return { status: 204, body: undefined };
     }
 
