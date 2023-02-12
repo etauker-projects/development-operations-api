@@ -21,8 +21,8 @@ export class SchemaRepository {
                 FROM pg_catalog.pg_namespace n
                 WHERE n.nspname !~ '^pg_'
                 AND n.nspname <> 'information_schema'
-                AND n.nspname <> 'public';
-            `.replace(/\n/ug, ' ');
+                AND n.nspname <> 'public'
+            `;
 
             const results = await connector.select<{ schema_name: string }>(query);
             this.logger.trace(`Found ${ results.length } schemas`, context.tracer);
@@ -59,7 +59,7 @@ export class SchemaRepository {
                 owner_username: string,
                 schema_name: string,
                 schema_acl: string,
-            }>(query.replace(/\n/ug, ' '));
+            }>(query);
             
             this.logger.debug(`Found schema(s)`, context.tracer, results);
 
