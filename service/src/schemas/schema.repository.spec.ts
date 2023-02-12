@@ -2,9 +2,12 @@ import 'mocha';
 import assert, { AssertionError } from 'assert';
 import { PersistenceTransactionMock } from '@etauker/connector-postgres';
 import { SchemaRepository } from './schema.repository';
+import { RequestContext } from '../api/request-context.interface';
+import { randomUUID } from 'crypto';
 
 describe('SchemaRepository', () => {
 
+    const context: RequestContext = { tracer: randomUUID() };
     let transaction: PersistenceTransactionMock;
 
     beforeEach(() => {
@@ -22,7 +25,7 @@ describe('SchemaRepository', () => {
             const strict = true;
 
             try {
-                await repository.createSchema(transaction as any, name, strict);
+                await repository.createSchema(context, transaction as any, name, strict);
                 assert(false, 'expected method to throw exception but none was thrown');
             } catch (error) {
                 if (error instanceof AssertionError) {
@@ -39,7 +42,7 @@ describe('SchemaRepository', () => {
             const strict = true;
 
             try {
-                await repository.createSchema(transaction as any, name, strict);
+                await repository.createSchema(context, transaction as any, name, strict);
                 assert(false, 'expected method to throw exception but none was thrown');
             } catch (error) {
                 if (error instanceof AssertionError) {
@@ -56,7 +59,7 @@ describe('SchemaRepository', () => {
             const strict = true;
 
             try {
-                await repository.createSchema(transaction as any, name, strict);
+                await repository.createSchema(context, transaction as any, name, strict);
                 assert(false, 'expected method to throw exception but none was thrown');
             } catch (error) {
                 if (error instanceof AssertionError) {
@@ -76,7 +79,7 @@ describe('SchemaRepository', () => {
             const strict = true;
 
             try {
-                await repository.dropSchema(transaction as any, name, strict);
+                await repository.dropSchema(context, transaction as any, name, strict);
                 assert(false, 'expected method to throw exception but none was thrown');
             } catch (error) {
                 if (error instanceof AssertionError) {
@@ -93,7 +96,7 @@ describe('SchemaRepository', () => {
             const strict = true;
 
             try {
-                await repository.dropSchema(transaction as any, name, strict);
+                await repository.dropSchema(context, transaction as any, name, strict);
                 assert(false, 'expected method to throw exception but none was thrown');
             } catch (error) {
                 if (error instanceof AssertionError) {
@@ -110,7 +113,7 @@ describe('SchemaRepository', () => {
             const strict = true;
 
             try {
-                await repository.dropSchema(transaction as any, name, strict);
+                await repository.dropSchema(context, transaction as any, name, strict);
                 assert(false, 'expected method to throw exception but none was thrown');
             } catch (error) {
                 if (error instanceof AssertionError) {

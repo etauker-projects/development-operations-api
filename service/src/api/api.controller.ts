@@ -1,9 +1,16 @@
 import * as express from 'express';
 import { ZodError } from 'zod';
+import { LogService } from '../logs/log.module';
 import { IEndpoint, IResponse } from './api.module';
 
 
 export class ApiController {
+    
+    protected logger: LogService;
+
+    constructor(logger: LogService) {
+        this.logger = logger;
+    }
 
     protected registerEndpoints(
         router: express.Router,
@@ -26,7 +33,7 @@ export class ApiController {
             };
             
             router[method](endpoint, handler);
-            // this.logger.info(`-- ${ method.toUpperCase() } ${ endpoint }`);
+            this.logger.info(`REGISTERED: ${ method.toUpperCase() } ${ endpoint }`);
         });
     }
 

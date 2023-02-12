@@ -15,7 +15,7 @@ export class PersistenceFactory {
     ): IPersistenceConfig {
 
         return {
-            database, username, password,
+            database, user: username, password,
             // TODO: use node name to determine the url
             host: Extractor.extractString('DATABASE_HOST'),
             port: Extractor.extractNumber('DATABASE_PORT', 5432),
