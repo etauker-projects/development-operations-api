@@ -159,7 +159,7 @@ export class UserRepository {
             await this.ensureUserExists(context, transaction, role);
             const query = 'DROP ROLE $role'.replace('$role', role);
             await transaction.continue(query);
-            this.logger.trace(`Dropped '${ role }'`, context.tracer);
+            this.logger.trace(`Dropped role '${ role }'`, context.tracer);
         } catch (error) {
             this.logger.error(`Error dropping role '${ role }'`, context.tracer, error);
             if (strict) throw error;
@@ -201,7 +201,7 @@ export class UserRepository {
         if (!exists) {
             throw new HttpError(404, `User with name '${ name }' not found`);
         }
-        this.logger.debug(`User ${ name } exists`, context.tracer);
+        this.logger.debug(`User '${ name }' exists`, context.tracer);
     }
 
     public async ensureUserDoesNotExist(
@@ -214,7 +214,7 @@ export class UserRepository {
         if (exists) {
             throw new HttpError(409, `User with name '${ name }' already exists`);
         }
-        this.logger.debug(`User ${ name } does not exist`, context.tracer);
+        this.logger.debug(`User '${ name }' does not exist`, context.tracer);
     }
 
     private async userExists(transaction: PersistenceTransaction, name: string): Promise<boolean> {

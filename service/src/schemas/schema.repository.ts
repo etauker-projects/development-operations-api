@@ -61,7 +61,7 @@ export class SchemaRepository {
                 schema_acl: string,
             }>(query.replace(/\n/ug, ' '));
             
-            this.logger.debug(`Found schema`, context.tracer, results);
+            this.logger.debug(`Found schema(s)`, context.tracer, results);
 
             if (results.length < 1) {
                 throw new HttpError(404, 'Schema not found');
@@ -143,7 +143,7 @@ export class SchemaRepository {
         if (!exists) {
             throw new HttpError(409, `Schema with name '${ name }' not found`);
         }
-        this.logger.debug(`Schema ${ name } exists`, context.tracer);
+        this.logger.debug(`Schema '${ name }' exists`, context.tracer);
     }
 
     public async ensureSchemaDoesNotExist(
@@ -155,7 +155,7 @@ export class SchemaRepository {
         if (exists) {
             throw new HttpError(409, `Schema with name '${ name }' already exists`);
         }
-        this.logger.debug(`Schema ${ name } does not exist`, context.tracer);
+        this.logger.debug(`Schema '${ name }' does not exist`, context.tracer);
     }
 
     private async schemaExists(

@@ -71,7 +71,7 @@ export class SchemaService {
             await this.executeUpdate(transaction2, 'GRANT ALL ON ALL TABLES IN SCHEMA public TO $1', [ schema.getAdmin().getUsername() ]);
             await this.executeUpdate(transaction2, 'GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO $1', [ schema.getAdmin().getUsername() ]);
             await this.executeUpdate(transaction2, 'GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO $1', [ schema.getAdmin().getUsername() ]);
-            this.logger.trace(`Granted schema permissions for admin ${ schema.getAdmin().getUsername() }`, context.tracer);
+            this.logger.trace(`Granted schema permissions for admin '${ schema.getAdmin().getUsername() }'`, context.tracer);
 
             // USER
             await userRepository.updateUserSearchPath(
@@ -82,7 +82,7 @@ export class SchemaService {
             );
             await this.executeUpdate(transaction2, 'GRANT USAGE ON SCHEMA $1 TO $2', [ schema.getName(), schema.getUser().getUsername() ]);
             await this.executeUpdate(transaction2, 'GRANT INSERT, SELECT, UPDATE, DELETE ON ALL TABLES IN SCHEMA $1 TO $2', [ schema.getName(), schema.getUser().getUsername() ]);
-            this.logger.trace(`Granted schema permissions for user ${ schema.getUser().getUsername() }`, context.tracer);
+            this.logger.trace(`Granted schema permissions for user '${ schema.getUser().getUsername() }'`, context.tracer);
 
             await transaction2.commit();
             this.logger.trace(`Committed user search path and permission update`, context.tracer);
