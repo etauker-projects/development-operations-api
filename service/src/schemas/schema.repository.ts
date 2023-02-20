@@ -125,7 +125,7 @@ export class SchemaRepository {
         try {
             this.ensureValidSymbol(name, 'name');
             await this.ensureSchemaExists(context, transaction, name);
-            const query = 'DROP SCHEMA $name'.replace('$name', name);
+            const query = 'DROP SCHEMA IF EXISTS $name CASCADE'.replace('$name', name);
             await transaction.continue(query);
             this.logger.trace(`Dropped schema '${ name }'`, context.tracer);
         } catch (error) {
