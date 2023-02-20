@@ -20,6 +20,7 @@ spec:
       containers:
       - name: main
         image: ghcr.io/etauker-projects/development-operations-api-main:main
+        imagePullPolicy: Always
         ports:
         - containerPort: 9999
         env:
@@ -28,7 +29,7 @@ spec:
         - name: DATABASE_PORT
           value: "5432"
         - name: DATABASE_SSL_CONNECTION
-          value: "true"
+          value: "false"
         - name: DATABASE_MAX_POOL_SIZE
           value: "1"
         - name: DATABASE_IDLE_TIMEOUT_MILLIS
