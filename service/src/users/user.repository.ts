@@ -157,8 +157,10 @@ export class UserRepository {
         try {
             this.ensureValidSymbol(role, 'role');
             await this.ensureUserExists(context, transaction, role);
-            const query = 'DROP ROLE $role'.replace('$role', role);
-            await transaction.continue(query);
+            const dropOwnedQuery = 'DROP OWNED BY $role'.replace('$role', role);
+            await transaction.continue(dropOwnedQuery);
+            const dropRoleQuery = 'DROP ROLE $role'.replace('$role', role);
+            await transaction.continue(dropRoleQuery);
             this.logger.trace(`Dropped role '${ role }'`, context.tracer);
         } catch (error) {
             this.logger.error(`Error dropping role '${ role }'`, context.tracer, error);
