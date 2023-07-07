@@ -4,6 +4,7 @@ import { LogService, LogFactory } from './logs/log.module';
 import { NodeController } from './nodes/node.module';
 import { DatabaseController } from './databases/database.controller';
 import { SchemaController } from './schemas/schema.module';
+import { StatusController } from './status/status.controller';
 
 
 export class OperationsServer {
@@ -55,6 +56,7 @@ export class OperationsServer {
     }
 
     private bootstrap(): OperationsServer {
+        this.app.use(StatusController.getInstance(this.logger).getRouter(this.apiRoot));
         this.app.use(NodeController.getInstance().getRouter(this.apiRoot + '/v1'));
         this.app.use(DatabaseController.getInstance().getRouter(this.apiRoot + '/v1/nodes/:nodeId'));
         this.app.use(SchemaController.getInstance().getRouter(this.apiRoot + '/v1/nodes/:nodeId/databases/:databaseId'));
