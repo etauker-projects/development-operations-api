@@ -80,7 +80,8 @@ export class LogService {
     // ===========================================
     private isCategoryEnabled(category: Category): boolean {
         const value: number = Level[category];
-        return value <= this.logLevel;
+        const logValue = typeof this.logLevel === 'number' ? this.logLevel : Level[this.logLevel] as unknown as number;
+        return value <= logValue;
     }
 
     private getColour(level: Category) {
