@@ -23,7 +23,7 @@ echo 'Starting nginx-proxy container'
 echo '---'
 docker run \
   --name nginx-proxy \
-  -p 8000:80 \
+  -p 8011:80 \
   -p 8443:8443 \
   -d \
   -v `pwd`/mnt/.htpasswd:/etc/nginx/.htpasswd \
@@ -37,7 +37,7 @@ docker run \
 
 echo 'Exposing ports through firewall'
 echo '---'
-sudo ufw allow 8000
+sudo ufw allow 8011
 sudo ufw allow 8443
 
 # http://localhost:8000/#/workloads?namespace=default - outside server
